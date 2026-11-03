@@ -18,15 +18,15 @@ def fetch_mesh(target_date: str) -> str:
     )
 
     headers = {
-    "Authorization": f"Bearer {AUTH_TOKEN}",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "profile-id": "1471174",
-    "profile-type": "student",
-    "x-mes-role": "student",
-    "x-mes-subsystem": "familyspow",
-    "Cookie": f"aupd_token={AUTH_TOKEN}; aupd_current_role=66:32; subsystem_id=66; active_student=1471174; obr_id=2460314;"
-}
+        "Authorization": f"Bearer {AUTH_TOKEN}",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "profile-id": "1471174",
+        "profile-type": "student",
+        "x-mes-role": "student",
+        "x-mes-subsystem": "familyspow",
+        "Cookie": f"_ym_uid=1694340016919895809; tmr_lvid=ecd1d9e1e39df3eec7d2ec6ced03e45b; tmr_lvidTS=1713461175430; _ymab_param=DCVD_w5Z8wr91OgeVouL8Lyd4FOpj5wrGkgN8ldrO2e97q6gkWRu4fQxxYoeHz-KWubYK2lJhizw_mKfz65G-G4xgHI; USER_AGREEMENT=1; _ga=GA1.2.1071269457.1778837927; _ga_90LEX004BT=GS2.2.s1778837927$o1$g0$t1778837927$j60$l0$h0; _ym_d=1793696293; _ym_isad=1; auth_flag=region; aupd_token={AUTH_TOKEN}; user_login=; obr_id=2460314; mdd=1; cluster=; aupd_current_role=66:32; subsystem_id=66; active_student=1471174; domain_sid=TIxBRyX2RB48d6NUNAwfn%3A1793696875291; tmr_detect=1%7C1793705882348; JSESSIONID=node01n1x9xm181igz1wlvod1ygmtco824699.node0"
+    }
     # Жесткий таймаут 2.0 секунды, чтобы гарантированно успеть ответить Алисе
     res = requests.get(url, headers=headers, timeout=2.0)
     if res.status_code != 200:
