@@ -19,13 +19,12 @@ def fetch_mesh(target_date: str) -> str:
 
     headers = {
         "Authorization": f"Bearer {AUTH_TOKEN}",
-        "Auth-Token": AUTH_TOKEN,
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        ),
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36",
         "Accept": "application/json",
+        "x-mes-hostid": "66",
+        "x-mes-subsystem": "headerweb",
+        "Cookie": f"aupd_token={AUTH_TOKEN}; aupd_current_role=66:32; subsystem_id=66; active_student=1471174; obr_id=2460314;"
     }
-
     # Жесткий таймаут 2.0 секунды, чтобы гарантированно успеть ответить Алисе
     res = requests.get(url, headers=headers, timeout=2.0)
     if res.status_code != 200:
