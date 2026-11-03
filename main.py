@@ -6,7 +6,7 @@ import requests
 app = FastAPI()
 
 AUTH_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyNDYwMzE0Iiwic2NwIjoib3BlbmlkIHByb2ZpbGUiLCJtc2giOiIzYzNkNGFiYS0wNjRjLTRmMjAtOThiZC00MDM0Y2MyYmUyMWEiLCJpc3MiOiJodHRwczpcL1wvYXV0aGVkdS5tb3NyZWcucnUiLCJncm91cHMiOnsiYWR1bHQiOjF9LCJzc28iOiIxMTg4Njg3NTQyIiwibmJmIjoxNzkzNjk2MzIyLCJhdGgiOiJlc2lhIiwicmxzIjoiezMyOlsxOToyOltdLDEzOTo0OltdLDE3NzoxNjpbXSwxODk6MTpbXSwyMTA6MTk6W10sNDY4OjQ0OltdLDU2OTo0ODpbXSw2MzA6NjY6W11dfSx7MTpbMzA6NDpbXV19IiwicmduIjoiNTAiLCJleHAiOjE3OTQ1NjAzMjIsImlhdCI6MTc5MzY5NjMyMiwianRpIjoiY2MxM2I2ODEtNGNkMy00Mjg3LTkzYjYtODE0Y2QzNDI4N2MwIn0.DKShrO9Vz5zR96UCGS2d7ukx-KQo1Jom4_psvaWS4qN9HOmbY4jDr8VVEt7mk4goz32gTwb7t_PKe5jCvfqz5fNlxoh1nZJr4h05n0kknK9LKCXbdIdS7tGZZ1cyS2uCglZH3udOPxP0-dfsP8zGPkbfrOyAAfMpGOXy5P4mbCHzynQ6c406tCF-a_YjwxvJk-ZBf6iwJQcLTj-Te8JoQY50D-H3tXXI0VRVNlyHu8XleEC7I4At-5bjC3OWbF7kKKGSqNKFfOUifui5p1Ix0pX_GCT6iUblthv9uzriIgsIj18qTibrBUafMReyfe8b1RM2JPvG9jEbiXuc3X812w"
-PERSON_ID = "2460314"
+PERSON_ID = "3c3d4aba-064c-4f20-98bd-4034cc2be21a"
 
 
 def fetch_mesh(target_date: str) -> str:
@@ -18,13 +18,15 @@ def fetch_mesh(target_date: str) -> str:
     )
 
     headers = {
-        "Authorization": f"Bearer {AUTH_TOKEN}",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "x-mes-hostid": "66",
-        "x-mes-subsystem": "headerweb",
-        "Cookie": f"aupd_token={AUTH_TOKEN}; aupd_current_role=66:32; subsystem_id=66; active_student=1471174; obr_id=2460314;"
-    }
+    "Authorization": f"Bearer {AUTH_TOKEN}",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 YaBrowser/26.10.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "profile-id": "1471174",
+    "profile-type": "student",
+    "x-mes-role": "student",
+    "x-mes-subsystem": "familyspow",
+    "Cookie": f"aupd_token={AUTH_TOKEN}; aupd_current_role=66:32; subsystem_id=66; active_student=1471174; obr_id=2460314;"
+}
     # Жесткий таймаут 2.0 секунды, чтобы гарантированно успеть ответить Алисе
     res = requests.get(url, headers=headers, timeout=2.0)
     if res.status_code != 200:
