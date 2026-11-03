@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import asyncio
 from fastapi import FastAPI, Request
 import requests
 
@@ -8,7 +9,7 @@ AUTH_TOKEN = "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyNDYwMzE0Iiwic2NwIjoib3Blbm
 PERSON_ID = "3c3d4aba-064c-4f20-98bd-4034cc2be21a"
 
 
-def get_schedule(target_date: str) -> str:
+def fetch_mesh(target_date: str) -> str:
     url = (
         f"https://authedu.mosreg.ru/api/profeducation/eventcalendar/v1/api/events"
         f"?person_ids={PERSON_ID}&begin_date={target_date}&end_date={target_date}"
@@ -25,47 +26,50 @@ def get_schedule(target_date: str) -> str:
         "Accept": "application/json",
     }
 
-    try:
-        res = requests.get(url, headers=headers, timeout=3.5)
-        if res.status_code != 200:
-            return "Не удалось связаться с дневником. Проверь токен."
+    # Жесткий таймаут 2.0 секунды, чтобы гарантированно успеть ответить Алисе
+    res = requests.get(url, headers=headers, timeout=2.0)
+    if res.status_code != 200:
+        return f"Сервер дневника ответил ошибкой {res.status_code}. Проверь токен."
 
-        data = res.json()
-        events = (
-            data.get("response", [])
-            if isinstance(data, dict)
-            else (data if isinstance(data, list) else [])
+    data = res.json()
+    events = (
+        data.get("response", [])
+        if isinstance(data, dict)
+        else (data if isinstance(data, list) else [])
+    )
+
+    if not events:
+        return "На завтра пар нет. Можно отдыхать!"
+
+    pairs = []
+    for item in events:
+        start_time = item.get("start_at", "")
+        if "T" in start_time:
+            start_time = start_time.split("T")[1][:5]
+
+        title = (
+            item.get("title")
+            or item.get("subject_name")
+            or item.get("name")
+            or "Пара"
+        )
+        room = item.get("room", "") or item.get("room_number", "")
+        room_text = f", кабинет {room}" if room else ""
+        pairs.append(
+            f"В {start_time} — {title}{room_text}"
+            if start_time
+            else f"{title}{room_text}"
         )
 
-        if not events:
-            return "На завтра пар нет. Можно отдыхать!"
+    if not pairs:
+        return "На завтра пар не запланировано."
 
-        pairs = []
-        for item in events:
-            start_time = item.get("start_at", "")
-            if "T" in start_time:
-                start_time = start_time.split("T")[1][:5]
+    return f"Завтра пар: {len(pairs)}. " + ", ".join(pairs)
 
-            title = (
-                item.get("title")
-                or item.get("subject_name")
-                or item.get("name")
-                or "Пара"
-            )
-            room = item.get("room", "") or item.get("room_number", "")
-            room_text = f", кабинет {room}" if room else ""
-            pairs.append(
-                f"В {start_time} — {title}{room_text}"
-                if start_time
-                else f"{title}{room_text}"
-            )
 
-        if not pairs:
-            return "На завтра пар не запланировано."
-
-        return f"Завтра пар: {len(pairs)}. " + ", ".join(pairs)
-    except Exception:
-        return "Произошла ошибка при получении расписания."
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
 
 
 @app.post("/")
@@ -74,7 +78,16 @@ async def webhook(request: Request):
     moscow_now = datetime.utcnow() + timedelta(hours=3)
     tomorrow = (moscow_now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    speech = get_schedule(tomorrow)
+    try:
+        # Запускаем в отдельном пуле с лимитом времени
+        speech = await asyncio.wait_for(
+            asyncio.to_thread(fetch_mesh, tomorrow),
+            timeout=2.4
+        )
+    except asyncio.TimeoutError:
+        speech = "Дневник МЭШ слишком долго отвечает, не успеваю загрузить расписание."
+    except Exception as e:
+        speech = "Произошла ошибка при получении данных."
 
     return {
         "response": {"text": speech, "end_session": True},
